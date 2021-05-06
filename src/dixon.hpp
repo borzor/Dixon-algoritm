@@ -1,6 +1,7 @@
 #include <NTL/ZZ.h>
 #include <NTL/RR.h>
 #include <vector>
+
 class dixon
 {
 private:
@@ -13,6 +14,7 @@ public:
     void create_factor_base();
     std::pair<NTL::ZZ, NTL::ZZ> generate_numbers();
     bool Check_on_Smooth(std::pair<NTL::ZZ, NTL::ZZ> pair);
+    void do_factorise();
 };
 
 
