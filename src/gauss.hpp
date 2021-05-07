@@ -2,9 +2,9 @@
 #include <boost/dynamic_bitset.hpp>
 #include <iostream>
 
-std::vector<std::pair<uint32_t, std::vector<uint32_t>>> Gauss (std::vector<std::pair<boost::dynamic_bitset<>,int>> a) {
+std::vector<std::vector<uint32_t>> Gauss (std::vector<std::pair<boost::dynamic_bitset<>,int>> a) {
     std::vector<std::pair<boost::dynamic_bitset<>,int>> copy = a;
-    std::vector<std::pair<uint32_t, std::vector<uint32_t>>> result;
+    std::vector<std::vector<uint32_t>> result;
     std::vector<int> where (a[0].first.size(), -1);
     uint32_t counter = 0;
     for (int col=0, row=0; col<a[0].first.size() && row<a.size(); ++col) {
@@ -22,16 +22,11 @@ std::vector<std::pair<uint32_t, std::vector<uint32_t>>> Gauss (std::vector<std::
                 a[i].first ^= a[row].first;
         ++row;
     }
-    std::cout<<'\n';
-    for(auto &i:a){
-        std::cout<<i.first<<' '<<i.second<<' ';
-    std::cout<<'\n';}
 
     for(auto &i:a){
         if(i.first.any())
             ++counter;
     }
-    std::cout<<'\n';
     boost::dynamic_bitset<>check_bitset(a[0].first.size());
     std::vector<uint32_t>for_result;
     for(uint32_t h = counter; h < a.size(); ++h){//h - zero bitsets
@@ -40,19 +35,17 @@ std::vector<std::pair<uint32_t, std::vector<uint32_t>>> Gauss (std::vector<std::
                 boost::dynamic_bitset<>bits(counter, i);
                 for(uint32_t j = 0; j < counter; ++j){
                     if(bits[j]){
-                        check_bitset^=a[j].first;
+                        check_bitset^=copy[a[j].second].first;//a[j].first;
                     }
                 }
                 if(check_bitset==copy[a[h].second].first){
-                    std::cout<<bits<<' '<<copy[a[h].second].second<<'\n';
+                    for_result.push_back(copy[a[h].second].second);
                     for(uint j = 0; j < counter; ++j){
                         if(bits[j]){
-                            std::cout<<a[j].second;
                             for_result.push_back(a[j].second);
                         }
                     }
-                    result.push_back(std::make_pair(copy[a[h].second].second, for_result));
-                    std::cout<<'\n';
+                    result.push_back(for_result);
                 }
                 check_bitset.reset();
                 for_result.clear();

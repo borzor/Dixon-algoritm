@@ -1,5 +1,6 @@
 #include "dixon.hpp"
 #include "gauss.hpp"
+#include <cmath>
 
 dixon::dixon(NTL::ZZ N):
     N(N){}
@@ -46,11 +47,11 @@ bool dixon::Check_on_Smooth(std::pair<NTL::ZZ, NTL::ZZ> pair){// b and a
 }
 
 void dixon::do_factorise(){
+    std::vector<std::vector<uint32_t>>result;
     std::vector<std::pair<boost::dynamic_bitset<>,int>> a;
-    std::vector<std::pair<uint32_t, std::vector<uint32_t>>>result;
-    uint32_t counter = 0, x, y;
     create_factor_base();
     while(1){
+        uint32_t counter = 0;
         uint32_t h = prime_numbers.size() + 1;
         while(h){
             std::pair<NTL::ZZ,NTL::ZZ> pair_ = generate_numbers();
@@ -65,12 +66,32 @@ void dixon::do_factorise(){
             a.push_back(std::make_pair(db, counter++));
             db.reset();
         }
-        for(auto &i:a){
-            std::cout<<i.first<<' '<<i.second<<'\n';
-        }
         result = Gauss(a);
-        if(result.empty())
+        if(result.empty()){
+            pairs.clear();vec.clear();a.clear();
             continue;
+        }
+        else{
+            for(auto &i:result){
+                NTL::ZZ x(1);NTL::ZZ y(1);
+                for(auto &j:i){
+                    NTL::MulMod(x,x,pairs[j].first,N);
+                    for(uint32_t k = 0; k < vec[j].size(); ++k){
+                        NTL::MulMod(y, y, NTL::PowerMod(prime_numbers[k],vec[j][k], N),N);
+                    }
+                }
+            std::cout<<x<<' '<<y<<' '<<N<<'\n';
+            if(!((x - y) % N == 0 || (x + y) % N == 0)){
+                std::cout<<NTL::GCD(x+y,N)<<' '<<NTL::GCD(x-y,N)<<'\n';
+                break;
+            }
+            else{
+                pairs.clear();vec.clear();a.clear();
+                continue;
+            }
+            }
+        }
+
 
     }
 }

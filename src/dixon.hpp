@@ -5,8 +5,8 @@
 class dixon
 {
 private:
-    std::vector<NTL::ZZ>prime_numbers;
     NTL::ZZ N;
+    std::vector<NTL::ZZ>prime_numbers;
     std::vector<std::vector<uint32_t>>vec;
     std::vector<std::pair<NTL::ZZ,NTL::ZZ>>pairs;
 public:
