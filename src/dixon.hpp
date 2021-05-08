@@ -14,7 +14,9 @@ public:
     void create_factor_base();
     std::pair<NTL::ZZ, NTL::ZZ> generate_numbers();
     bool Check_on_Smooth(std::pair<NTL::ZZ, NTL::ZZ> pair);
-    void do_factorise();
+    std::pair<NTL::ZZ,NTL::ZZ> do_factorise();
+    std::pair<NTL::ZZ,NTL::ZZ> get_result(NTL::ZZ x, NTL::ZZ y);
+
 };
 
 

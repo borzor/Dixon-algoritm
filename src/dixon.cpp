@@ -46,10 +46,10 @@ bool dixon::Check_on_Smooth(std::pair<NTL::ZZ, NTL::ZZ> pair){// b and a
         return 0;
 }
 
-void dixon::do_factorise(){
+std::pair<NTL::ZZ, NTL::ZZ> dixon::do_factorise(){
     std::vector<std::vector<uint32_t>>result;
     std::vector<std::pair<boost::dynamic_bitset<>,int>> a;
-
+    NTL::ZZ x(1);NTL::ZZ y(1);
     create_factor_base();
     while(1){
         uint32_t counter = 0;
@@ -68,41 +68,38 @@ void dixon::do_factorise(){
             db.reset();
         }
         result = Gauss(a);
+        std::vector<uint32_t>vec_for_y(vec[0].size(),0);
         if(result.empty()){
             pairs.clear();vec.clear();a.clear();
             continue;
         }
         else{
             for(auto &i:result){
-                std::vector<uint32_t>vec_for_y(vec[0].size(),0);
-                NTL::ZZ x(1);NTL::ZZ y(1);
                 for(auto &j:i){
                     NTL::MulMod(x,x,pairs[j].first,N);
                     for(uint32_t k = 0; k < vec[j].size(); ++k){
                         vec_for_y[k]+=vec[j][k];
-                        std::cout<<vec[j][k]<<' ';
                     }
-                    std::cout<<'\n';
                 }
                 for(uint32_t k = 0; k < vec_for_y.size(); ++k){
                     vec_for_y[k]/=2;
                     NTL::MulMod(y, y, NTL::PowerMod(prime_numbers[k],vec_for_y[k], N),N);
                 }
-                std::cout<<x<<' '<<y<<'\n';
                 if(((x - y) % N != 0) && ((x + y) % N != 0)){
-                    std::cout<<NTL::GCD(x+y,N)<<' '<<NTL::GCD(x-y,N)<<'\n';
-                    return;
+                    return get_result(x,y);
                 }
                 else{
-                    std::cout<<"no"<<'\n';
-                    vec_for_y.clear();y=1;x=1;
-                    continue;
+                    std::cout<<x<<" ≡  +-"<<y<<"(mod "<<N<<") - Это не подходит\n";
+                    std::fill(vec_for_y.begin(),vec_for_y.end(),0);y=1;x=1;
             }
             }
         }
-
-
     }
 }
-
+std::pair<NTL::ZZ,NTL::ZZ> dixon::get_result(NTL::ZZ x, NTL::ZZ y){
+    NTL::ZZ q;
+    NTL::ZZ GCD_p = NTL::GCD(x+y, N); NTL::ZZ GCD_m = NTL::GCD(x-y, N);
+    NTL::divide(q, GCD_p*GCD_m, N);
+    return (NTL::divide(GCD_p, q) ? std::make_pair(GCD_p/q, GCD_m) : std::make_pair (GCD_p, GCD_m));
+}
 

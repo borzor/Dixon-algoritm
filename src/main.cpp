@@ -5,6 +5,7 @@ int main()
 {
     NTL::ZZ a(89755);
     dixon dixon(a);
-    dixon.do_factorise();
+    std::pair<NTL::ZZ,NTL::ZZ> result(dixon.do_factorise());
+    std::cout<<a<<" можно получить умножив "<<result.first<<" на " <<result.second<<'\n';
     return 0;
 }
