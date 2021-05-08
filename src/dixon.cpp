@@ -49,6 +49,7 @@ bool dixon::Check_on_Smooth(std::pair<NTL::ZZ, NTL::ZZ> pair){// b and a
 void dixon::do_factorise(){
     std::vector<std::vector<uint32_t>>result;
     std::vector<std::pair<boost::dynamic_bitset<>,int>> a;
+
     create_factor_base();
     while(1){
         uint32_t counter = 0;
@@ -73,21 +74,29 @@ void dixon::do_factorise(){
         }
         else{
             for(auto &i:result){
+                std::vector<uint32_t>vec_for_y(vec[0].size(),0);
                 NTL::ZZ x(1);NTL::ZZ y(1);
                 for(auto &j:i){
                     NTL::MulMod(x,x,pairs[j].first,N);
                     for(uint32_t k = 0; k < vec[j].size(); ++k){
-                        NTL::MulMod(y, y, NTL::PowerMod(prime_numbers[k],vec[j][k], N),N);
+                        vec_for_y[k]+=vec[j][k];
+                        std::cout<<vec[j][k]<<' ';
                     }
+                    std::cout<<'\n';
                 }
-            std::cout<<x<<' '<<y<<' '<<N<<'\n';
-            if(!((x - y) % N == 0 || (x + y) % N == 0)){
-                std::cout<<NTL::GCD(x+y,N)<<' '<<NTL::GCD(x-y,N)<<'\n';
-                break;
-            }
-            else{
-                pairs.clear();vec.clear();a.clear();
-                continue;
+                for(uint32_t k = 0; k < vec_for_y.size(); ++k){
+                    vec_for_y[k]/=2;
+                    NTL::MulMod(y, y, NTL::PowerMod(prime_numbers[k],vec_for_y[k], N),N);
+                }
+                std::cout<<x<<' '<<y<<'\n';
+                if(((x - y) % N != 0) && ((x + y) % N != 0)){
+                    std::cout<<NTL::GCD(x+y,N)<<' '<<NTL::GCD(x-y,N)<<'\n';
+                    return;
+                }
+                else{
+                    std::cout<<"no"<<'\n';
+                    vec_for_y.clear();y=1;x=1;
+                    continue;
             }
             }
         }
