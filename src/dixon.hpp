@@ -6,17 +6,12 @@ class dixon
 {
 private:
     NTL::ZZ N;
-    std::vector<NTL::ZZ>prime_numbers;
-    std::vector<std::vector<uint32_t>>vec;
-    std::vector<std::pair<NTL::ZZ,NTL::ZZ>>pairs;
+    short number_of_threads;
 public:
-    dixon(NTL::ZZ N);
-    void create_factor_base();
-    std::pair<NTL::ZZ, NTL::ZZ> generate_numbers();
-    bool Check_on_Smooth(std::pair<NTL::ZZ, NTL::ZZ> pair);
+    dixon(NTL::ZZ N, short threads);
+    std::vector<NTL::ZZ> create_factor_base(NTL::ZZ &N);
     std::pair<NTL::ZZ,NTL::ZZ> do_factorise();
-    std::pair<NTL::ZZ,NTL::ZZ> get_result(NTL::ZZ x, NTL::ZZ y);
-
+    std::pair<NTL::ZZ,NTL::ZZ> get_result(NTL::ZZ &x, NTL::ZZ &y);
 };
 
 

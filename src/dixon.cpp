@@ -1,11 +1,12 @@
 #include "dixon.hpp"
-#include "gauss.hpp"
+#include "slaves.hpp"
 #include <cmath>
 
-dixon::dixon(NTL::ZZ N):
-    N(N){}
+dixon::dixon(NTL::ZZ N, short threads):
+    N(N), number_of_threads(threads){}
 
-void dixon::create_factor_base(){
+std::vector<NTL::ZZ> dixon::create_factor_base(NTL::ZZ &N){
+    std::vector<NTL::ZZ>prime_numbers;
     auto tmp = NTL::log(NTL::log(NTL::conv<NTL::RR>(N)))*NTL::log(N);
     auto Ln = NTL::exp(NTL::sqrt(tmp));
     auto M = NTL::sqrt(Ln);
@@ -15,50 +16,26 @@ void dixon::create_factor_base(){
        prime_numbers.push_back(NTL::ZZ(p));
        p = P.next();
     }
-}
-
-std::pair<NTL::ZZ,NTL::ZZ> dixon::generate_numbers(){
-    std::pair<NTL::ZZ,NTL::ZZ> numbers;
-    NTL::RR b;
-    while((b = NTL::random_RR())==0){continue;}
-    numbers.first = NTL::conv<NTL::ZZ>(b *((NTL::conv<NTL::RR>(N) - NTL::sqr(NTL::conv<NTL::RR>(N))) + NTL::sqr(NTL::conv<NTL::RR>(N))));
-    numbers.second = NTL::PowerMod(numbers.first, 2, N);
-    return numbers;
-}
-
-bool dixon::Check_on_Smooth(std::pair<NTL::ZZ, NTL::ZZ> pair){// b and a
-    NTL::ZZ tmp(pair.second);
-    std::vector<u_int32_t> pow;
-    uint32_t counter;
-    for(uint32_t i = 0; i < prime_numbers.size(); i++){
-        counter = 0;
-        while(NTL::divide(tmp, tmp, prime_numbers[i])){
-            counter++;
-        }
-        pow.push_back(counter);
-    }
-    if(tmp==1){
-        vec.push_back(pow);
-        pairs.push_back(pair);
-        return 1;
-    }
-    else
-        return 0;
+    return prime_numbers;
 }
 
 std::pair<NTL::ZZ, NTL::ZZ> dixon::do_factorise(){
     std::vector<std::vector<uint32_t>>result;
     std::vector<std::pair<boost::dynamic_bitset<>,int>> a;
     NTL::ZZ x(1);NTL::ZZ y(1);
-    create_factor_base();
+    std::vector<std::vector<uint32_t>>vec;
+    std::vector<std::pair<NTL::ZZ,NTL::ZZ>>pairs;
+    std::vector<NTL::ZZ>prime_numbers(create_factor_base(N));
+
     while(1){
+        a.clear();result.clear();
         uint32_t counter = 0;
-        uint32_t h = prime_numbers.size() + 1;
-        while(h){
-            std::pair<NTL::ZZ,NTL::ZZ> pair_ = generate_numbers();
-            if(Check_on_Smooth(pair_))
-                --h;
-        }
+        uint32_t size = prime_numbers.size() + 1;
+        auto start = std::chrono::steady_clock::now();
+        make_numbers(std::ref(prime_numbers), N, std::ref(vec), std::ref(pairs), size, number_of_threads);
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end-start;
+        std::cout << "elapsed time on generating numbers: " << elapsed_seconds.count() << "s\n";
         for(auto &i:vec){
             boost::dynamic_bitset<>db;
             for(auto &j:i){
@@ -67,7 +44,11 @@ std::pair<NTL::ZZ, NTL::ZZ> dixon::do_factorise(){
             a.push_back(std::make_pair(db, counter++));
             db.reset();
         }
+        auto start_gauss = std::chrono::steady_clock::now();
         result = Gauss(a);
+        auto end_gauss = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds_gauss = end_gauss-start_gauss;
+        std::cout << "elapsed time on gauss: " << elapsed_seconds_gauss.count() << "s\n";
         std::vector<uint32_t>vec_for_y(vec[0].size(),0);
         if(result.empty()){
             pairs.clear();vec.clear();a.clear();
@@ -89,14 +70,14 @@ std::pair<NTL::ZZ, NTL::ZZ> dixon::do_factorise(){
                     return get_result(x,y);
                 }
                 else{
-                    std::cout<<x<<" ≡  +-"<<y<<"(mod "<<N<<") - Это не подходит\n";
                     std::fill(vec_for_y.begin(),vec_for_y.end(),0);y=1;x=1;
             }
             }
         }
     }
 }
-std::pair<NTL::ZZ,NTL::ZZ> dixon::get_result(NTL::ZZ x, NTL::ZZ y){
+
+std::pair<NTL::ZZ,NTL::ZZ> dixon::get_result(NTL::ZZ &x, NTL::ZZ &y){
     NTL::ZZ q;
     NTL::ZZ GCD_p = NTL::GCD(x+y, N); NTL::ZZ GCD_m = NTL::GCD(x-y, N);
     NTL::divide(q, GCD_p*GCD_m, N);
