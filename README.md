@@ -1,4 +1,2 @@
-![image](https://user-images.githubusercontent.com/64104945/118046282-c5771180-b381-11eb-9c72-b4010ae8a205.png)
-
-Example of factorization of the number 2909186879743
-![image](https://user-images.githubusercontent.com/64104945/118046207-ac6e6080-b381-11eb-8c81-cbb0b86e3e17.png)
+Example of factorization of the number 965211226903592737
+![image](https://user-images.githubusercontent.com/64104945/118372424-2c7f0b00-b5ba-11eb-88fe-6893f7dd185c.png)
