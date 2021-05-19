@@ -50,7 +50,7 @@ void make_numbers(std::vector<NTL::ZZ> prime_numbers, NTL::ZZ N, std::vector<std
     std::vector<std::vector<std::vector<uint32_t>>>vec_for_threads(number_of_threads);
     std::vector<std::vector<std::pair<NTL::ZZ,NTL::ZZ>>>pairs_for_threads(number_of_threads);
     for(auto i = 0 ;i < number_of_threads; ++i){
-        slave_pool.push_back(new std::thread(generate_smooth_numbers, std::ref(prime_numbers), N, std::ref(vec_for_threads[i]), std::ref(pairs_for_threads[i]), std::ref(size)));//generate_smooth_numbers
+        slave_pool.push_back(new std::thread(generate_smooth_numbers, std::ref(prime_numbers), N, std::ref(vec_for_threads[i]), std::ref(pairs_for_threads[i]), std::ref(size)));
     }
     for(auto &thread:slave_pool){
         thread->join();

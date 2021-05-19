@@ -1,6 +1,8 @@
 #include "dixon.hpp"
+#include "gauss_testing.hpp"
 
-#define A "8042488335863228666059"
+
+/*#define A "8042488335863228666059"
 
 int main()
 {
@@ -16,3 +18,6 @@ int main()
 
     return 0;
 }
+*/
+BENCHMARK(gauss_test)->RangeMultiplier(2)->Range(8, 8<<10);
+BENCHMARK_MAIN();

@@ -3,7 +3,8 @@
 #include <iostream>
 #include <NTL/ZZ.h>
 #include <NTL/RR.h>
-std::vector<std::vector<uint32_t>> Gauss (std::vector<std::pair<boost::dynamic_bitset<>, int>> a) {
+
+inline std::vector<std::vector<uint32_t>> Gauss (std::vector<std::pair<boost::dynamic_bitset<>, int>> a) {
     std::vector<boost::dynamic_bitset<>>logger(a.size());
     std::vector<std::vector<uint32_t>>answer;
     for(auto &i:logger){
