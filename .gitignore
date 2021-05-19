@@ -1,8 +1,0 @@
-
-build-class-Desktop_Qt_6_0_1_GCC_64bit-Debug/
-
-*.user
-
-dixon_build/
-
-.cmake/
